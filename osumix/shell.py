@@ -27,7 +27,6 @@ def main(input, output, audio, beatmap_sounds):
 
     if audio:
         music_audio = AudioSegment.from_file(audio)
-        music_audio.export('music.flac', 'flac')
         result = music_audio.overlay(AudioSegment.silent(24) + result)
 
     result.export(output, output_format)
