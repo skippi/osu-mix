@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "osumix"
+version = "0.1.0"
+description = ""
+authors = ["Justin <jbtcao@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "*"
+slider = "^0.1.0"
+pydub = "^0.23.0"
+click = "^7.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[tool.poetry.scripts]
+osumix = 'osumix.shell:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
