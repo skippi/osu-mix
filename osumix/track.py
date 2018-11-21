@@ -7,6 +7,7 @@ from typing import List, NamedTuple, Tuple
 from pydub import AudioSegment
 from slider.beatmap import (Beatmap, Circle, Slider, TimingPoint)
 from . import audio
+from ._pydub_util import audioseg_adjust_volume
 from .audio import SoundRepo
 
 
@@ -45,8 +46,7 @@ class Track(NamedTuple):
                 result = sync_result
                 result._data = bytearray(result._data)
 
-            db_gain = 10 * math.log2(note.volume)
-            note_snd = note_snd + db_gain
+            note_snd = audioseg_adjust_volume(note_snd, note.volume)
 
             time_ms = note.timestamp.total_seconds() * 1000
             byte_offset = result._parse_position(time_ms) * result.frame_width
