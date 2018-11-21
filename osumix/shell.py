@@ -13,14 +13,14 @@ from .track import Track
 @click.argument('output', nargs=1, metavar='<output>')
 @click.option('--audio', nargs=1, help='music audio', metavar='<file>')
 @click.option('--beatmap-sounds', nargs=1, help='beatmap sounds directory', metavar='<file>')
-def main(input, output, audio, bm_sounds):
+def main(input, output, audio, beatmap_sounds):
     """Compiles a beatmap <input> to an audio file <output>."""
     output_format = os.path.splitext(output)[1][1:]
 
-    beatmap_sounds = load_sounds(bm_sounds) if bm_sounds else {}
+    bm_audios = load_sounds(beatmap_sounds) if beatmap_sounds else {}
 
     beatmap = Beatmap.from_path(input)
-    track = Track.from_beatmap(beatmap, beatmap_sounds)
+    track = Track.from_beatmap(beatmap, bm_audios)
     beatmap_audio = track.compile()
 
     result = beatmap_audio
