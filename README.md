@@ -69,6 +69,7 @@ osumix --music ./Yuaru\ -\ Asu.mp3 --effect-volume 0.5 my_beatmap.osu output.fla
 
 Any of the following are open for discussion:
 
+- Slider ticks are not compiled into the output audio file.
 - Any spinner related sounds are not recorded yet. The decision to implement
   this is debatable, as spinner sounds don't really follow along with the
   song's rhythm.
