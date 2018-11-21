@@ -11,9 +11,9 @@ from .track import Track
 @click.command(options_metavar='[options]')
 @click.argument('input', nargs=1, metavar='<input>')
 @click.argument('output', nargs=1, metavar='<output>')
-@click.option('--audio', nargs=1, help='music audio', metavar='<file>')
-@click.option('--beatmap-sounds', nargs=1, help='beatmap sounds directory', metavar='<file>')
-def main(input, output, audio, beatmap_sounds):
+@click.option('--beatmap-sounds', nargs=1, help='beatmap sounds directory', metavar='<dir>')
+@click.option('--music', nargs=1, help='music audio', metavar='<file>')
+def main(input, output, beatmap_sounds, music):
     """Compiles a beatmap <input> to an audio file <output>."""
     output_format = os.path.splitext(output)[1][1:]
 
@@ -25,8 +25,8 @@ def main(input, output, audio, beatmap_sounds):
 
     result = beatmap_audio
 
-    if audio:
-        music_audio = AudioSegment.from_file(audio)
+    if music:
+        music_audio = AudioSegment.from_file(music)
         result = music_audio.overlay(AudioSegment.silent(24) + result)
 
     result.export(output, output_format)
