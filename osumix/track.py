@@ -7,6 +7,7 @@ from typing import List, NamedTuple, Tuple
 from pydub import AudioSegment
 from slider.beatmap import (Beatmap, Circle, Slider, TimingPoint)
 from . import audio
+from .audio import SoundRepo
 
 
 class Note(NamedTuple):
@@ -19,15 +20,15 @@ class Track(NamedTuple):
     notes: List[Note] = []
 
     @classmethod
-    def from_beatmap(cls, beatmap: Beatmap):
+    def from_beatmap(cls, beatmap: Beatmap, beatmap_sounds={}):
         new_notes = []
         for obj in beatmap.hit_objects:
             tp = beatmap.timing_point_at(obj.time)
 
             if isinstance(obj, Slider):
-                new_notes.extend(_slider2notes(obj, tp))
+                new_notes.extend(_slider2notes(obj, tp, beatmap_sounds))
             else:
-                new_notes.extend(_circle2notes(obj, tp))
+                new_notes.extend(_circle2notes(obj, tp, beatmap_sounds))
 
         return cls(new_notes)
 
@@ -63,16 +64,16 @@ class Track(NamedTuple):
         return result
 
 
-def _circle2notes(circle: Circle, tp: TimingPoint) -> List[Note]:
+def _circle2notes(circle: Circle, tp: TimingPoint, bm_sounds: SoundRepo) -> List[Note]:
     (sampleset, additionset, sampleindex) = _parse_addition(circle.addition, tp)
 
     hitsnds = _fetch_sounds(sampleset, additionset, 'hit',
-                            circle.hitsound, sampleindex)
+                            circle.hitsound, sampleindex, bm_sounds)
     notes = [Note(s, circle.time, tp.volume / 100) for s in hitsnds]
     return notes
 
 
-def _slider2notes(slider: Slider, tp: TimingPoint) -> List[Note]:
+def _slider2notes(slider: Slider, tp: TimingPoint, bm_sounds: SoundRepo) -> List[Note]:
     (sampleset, additionset, sampleindex) = _parse_addition(slider.addition, tp)
 
     duration = slider.end_time - slider.time
@@ -97,7 +98,7 @@ def _slider2notes(slider: Slider, tp: TimingPoint) -> List[Note]:
             edge_additionset = additionset
 
         edge_snds = _fetch_sounds(
-            edge_sampleset, edge_additionset, 'hit', edge_sndbits, sampleindex)
+            edge_sampleset, edge_additionset, 'hit', edge_sndbits, sampleindex, bm_sounds)
         edge_time = slider.time + (edge_period * n)
 
         edge_notes = [Note(s, edge_time, tp.volume / 100) for s in edge_snds]
@@ -106,10 +107,10 @@ def _slider2notes(slider: Slider, tp: TimingPoint) -> List[Note]:
 
     if len(slider.edge_sounds) > n:
         base_slide_snds = _fetch_sounds(
-            sampleset, additionset, 'slider', slider.hitsound, sampleindex)
+            sampleset, additionset, 'slider', slider.hitsound, sampleindex, bm_sounds)
     else:
         base_slide_snds = _fetch_sounds(
-            sampleset, additionset, 'slider', 1, sampleindex)
+            sampleset, additionset, 'slider', 1, sampleindex, bm_sounds)
 
     slide_snds = []
     for s in base_slide_snds:
@@ -140,7 +141,8 @@ def _parse_addition(addition: str, tp: TimingPoint) -> Tuple[int, int, int]:
     return (sampleset, additionset, sampleindex)
 
 
-def _fetch_sounds(sampleset: int, additionset: int, obj_type: str, sndbits: int, index: int):
+def _fetch_sounds(sampleset: int, additionset: int, obj_type: str,
+                  sndbits: int, index: int, bm_sounds: SoundRepo):
     if obj_type == 'hit':
         sounds = [1] + [n for n in [2, 4, 8] if sndbits & n == n]
     else:
@@ -153,10 +155,12 @@ def _fetch_sounds(sampleset: int, additionset: int, obj_type: str, sndbits: int,
 
     hitsnds = []
     for id in sampleids:
-        temp = audio.SampleId(id.sampleset, id.object_type, id.sound, 0)
-        hitsnd = audio.sounds.get(str(temp), AudioSegment.empty())
-        # if sampleindex != 0 and name in self.custom_hitsounds:
-        #     hitsnd = self.custom_hitsounds[name]
+        if index != 0 and str(id) in bm_sounds:
+            hitsnd = audio.sounds[str(id)]
+        else:
+            id_noindex = audio.SampleId(
+                id.sampleset, id.object_type, id.sound, 0)
+            hitsnd = audio.sounds.get(str(id_noindex), AudioSegment.empty())
 
         hitsnds.append(hitsnd)
 
