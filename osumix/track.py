@@ -156,7 +156,7 @@ def _fetch_sounds(sampleset: int, additionset: int, obj_type: str,
     hitsnds = []
     for id in sampleids:
         if index != 0 and str(id) in bm_sounds:
-            hitsnd = audio.sounds[str(id)]
+            hitsnd = bm_sounds[str(id)]
         else:
             id_noindex = audio.SampleId(
                 id.sampleset, id.object_type, id.sound, 0)
