@@ -3,6 +3,9 @@ from pydub import AudioSegment
 from typing import Dict, NamedTuple
 
 
+SoundRepo = Dict[str, AudioSegment]
+
+
 class SampleId(NamedTuple):
     sampleset: int
     object_type: str
@@ -23,6 +26,21 @@ class SampleId(NamedTuple):
         return f'{setname}-{self.object_type}{soundname}{indexname}'
 
 
+def load_sounds(directory: str) -> SoundRepo:
+    sounds = {}
+    for filename in os.listdir(directory):
+        full_path = os.path.join(directory, filename)
+        sound = AudioSegment.from_file(full_path)
+        key = os.path.splitext(filename)[0]
+        sounds[key] = sound
+
+    return sounds
+
+
+default_sounds_path = os.path.join(os.path.dirname(__file__), 'audio')
+sounds = load_sounds(default_sounds_path)
+
+
 _sampleset_names = {
     1: 'normal',
     2: 'soft',
@@ -40,12 +58,3 @@ _slidersnd_names = {
     1: 'slide',
     2: 'whistle'
 }
-
-sounds: Dict[str, AudioSegment] = {}
-
-_audio_dir = os.path.join(os.path.dirname(__file__), 'audio')
-for filename in os.listdir(_audio_dir):
-    full_path = os.path.join(_audio_dir, filename)
-    sound = AudioSegment.from_file(full_path)
-    key = os.path.splitext(filename)[0]
-    sounds[key] = sound
