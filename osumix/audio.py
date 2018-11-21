@@ -35,11 +35,13 @@ def load_sounds(directory: str) -> SoundRepo:
 
     for filename in snd_filenames:
         full_path = os.path.join(directory, filename)
+        file_format = os.path.splitext(full_path)[1][1:]
 
         try:
-            sound = AudioSegment.from_file(full_path)
+            sound = AudioSegment.from_file(full_path, file_format)
         except CouldntDecodeError:
-            continue
+            print(f'Error: could not open {filename}. Using empty audio.')
+            sound = AudioSegment.empty()
 
         key = os.path.splitext(filename)[0]
         sounds[key] = sound

@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -14,16 +15,18 @@ from .track import Track
 @click.option('--effect-volume', nargs=1, type=float, default=1.0, help='effect volume (default: 1.0)', metavar='<float>')
 @click.option('--music', nargs=1, help='music audio', metavar='<file>')
 @click.option('--music-volume', nargs=1, type=float, default=1.0, help='music volume (default: 1.0)', metavar='<float>')
+@click.option('--skin', nargs=1, help='skin directory', metavar='<dir>')
 @click.argument('input', nargs=1, metavar='<input>')
 @click.argument('output', nargs=1, metavar='<output>')
-def main(beatmap_sounds, effect_volume, music, music_volume, input, output):
+def main(beatmap_sounds, effect_volume, music, music_volume, skin, input, output):
     """Compiles a beatmap <input> to an audio file <output>."""
     output_format = os.path.splitext(output)[1][1:]
 
     bm_audios = load_sounds(beatmap_sounds) if beatmap_sounds else {}
+    skin_audios = load_sounds(skin) if skin else {}
 
     beatmap = Beatmap.from_path(input)
-    track = Track.from_beatmap(beatmap, bm_audios)
+    track = Track.from_beatmap(beatmap, bm_audios, skin_audios)
     beatmap_audio = track.compile()
     beatmap_audio = audioseg_adjust_volume(beatmap_audio, effect_volume)
 

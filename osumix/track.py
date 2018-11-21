@@ -107,12 +107,10 @@ def _slider2notes(slider: Slider, tp: TimingPoint, bm_sounds: SoundRepo, skin_so
 
         notes.extend(edge_notes)
 
-    if len(slider.edge_sounds) > n:
-        base_slide_snds = _fetch_sounds(
-            sampleset, additionset, 'slider', slider.hitsound, sampleindex, bm_sounds, skin_sounds)
-    else:
-        base_slide_snds = _fetch_sounds(
-            sampleset, additionset, 'slider', 1, sampleindex, bm_sounds, skin_sounds)
+    base_slide_snds = _fetch_sounds(
+        sampleset, additionset, 'slider', slider.hitsound, sampleindex, bm_sounds, skin_sounds)
+
+    base_slide_snds = [s for s in base_slide_snds if len(s) > 0]
 
     slide_snds = []
     for s in base_slide_snds:
