@@ -1,5 +1,7 @@
 import os
+import re
 from pydub import AudioSegment
+from pydub.exceptions import CouldntDecodeError
 from typing import Dict, NamedTuple
 
 
@@ -28,13 +30,24 @@ class SampleId(NamedTuple):
 
 def load_sounds(directory: str) -> SoundRepo:
     sounds = {}
-    for filename in os.listdir(directory):
+    snd_filenames = [n for n in os.listdir(
+        directory) if _soundfile_re.match(n)]
+
+    for filename in snd_filenames:
         full_path = os.path.join(directory, filename)
-        sound = AudioSegment.from_file(full_path)
+
+        try:
+            sound = AudioSegment.from_file(full_path)
+        except CouldntDecodeError:
+            continue
+
         key = os.path.splitext(filename)[0]
         sounds[key] = sound
 
     return sounds
+
+
+_soundfile_re = re.compile('.*\\.(?:wav|mp3|flac|pcm)')
 
 
 default_sounds_path = os.path.join(os.path.dirname(__file__), 'audio')
