@@ -8,9 +8,9 @@ A command-line tool for converting beatmaps into audio files.
 
 ## Installation
 
-osumix requires python >=3.4 and ffmpeg. You can download the release pip
-packages from [here](https://github.com/skippi/osumix/releases), or you can
-build it from the source. To build it from the source, you will need poetry.
+osumix requires python ^3.6 and ffmpeg. You can download osumix from pypi,
+or you can build it from the source. To build it from the source, you will
+need poetry.
 
 ```bash
 cd osumix
@@ -21,6 +21,10 @@ cd dist
 Install the pip package.
 
 ```bash
+# from pypi
+pip install osumix
+
+# from source
 pip install <osumix.tar.gz>
 ```
 
